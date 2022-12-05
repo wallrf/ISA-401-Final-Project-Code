@@ -1,7 +1,9 @@
-library(tidyverse)
+library(tidyverse, rmarkdown)
+pacman::p_load(DataExplorer, rmarkdown)
+
+
 
 gdp = read_csv('gdp-per-capita-worldbank.csv')
-diet = read_csv('number-calorie-diet-unaffordable (1).csv')
 poverty = read_csv('total-population-in-extreme-poverty.csv')
 population = read_csv('population.csv')
 CPI = read_csv('WorldCPI.csv')
@@ -19,7 +21,8 @@ CPI_final$Year = as.double(CPI_final$Year)
 
 ?mutate
 ?as.double
-#data joining to compare GDP, Extreme Poverty Tota
+
+#data joining to compare GDP, Extreme Poverty Total
 df = filter(left_join(x = gdp, y = poverty,
                       by = c('Entity', 'Code', 'Year')), total_number_of_people_below_poverty_line != 'NA' )
 df2 = left_join(x = df, y= population,
@@ -33,10 +36,28 @@ df3 = subset(left_join(x = df2, y = CPI_final,
 options(scipen = 999)
 
 
-
 #food price and food aid
 food_df = filter(left_join(x = food_supply, y = foodaid_received,
                     by = c('Entity', 'Code', 'Year')), `Developmental Food Aid (million 2016 USD)` != 'NA')
+
+#Data Explorer Code
+?create_report
+create_report(df3,
+              output_format = html_document(toc = TRUE, toc_depth = 6, theme = "yeti"),
+              output_file = "df3_report.html",
+              output_dir = getwd(),
+              y = NULL,
+              config = configure_report(),
+              report_title = 'Data Profiling Report')
+
+create_report(food_df,
+              output_format = html_document(toc = TRUE, toc_depth = 6, theme = "yeti"),
+              output_file = "food_df_report.html",
+              output_dir = getwd(),
+              y = NULL,
+              config = configure_report(),
+              report_title = 'Data Profiling Report')
+
 
 #write merged data to a csv for tableau
 
